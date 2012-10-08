@@ -36,6 +36,16 @@ module ActiveRecord
           end
         end
         alias_method_chain :simplified_type, :unsigned
+
+        def type_cast(value)
+          if type == :unsigned
+            return nil if value.nil?
+            return coder.load(value) if encoded?
+            value.to_i rescue value ? 1 : 0
+          else
+            super
+          end
+        end
       end
 
       def type_to_sql_with_unsigned(type, limit = nil, precision = nil, scale = nil)
