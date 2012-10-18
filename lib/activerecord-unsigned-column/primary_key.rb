@@ -27,9 +27,15 @@ module ActiveRecord
     end
 
     class AbstractMysqlAdapter
-      NATIVE_DATABASE_TYPES.merge!(
-        :primary_key => 'int(10) unsigned DEFAULT NULL auto_increment PRIMARY KEY'
-      )
+      def type_to_sql_with_primary_key(type, limit = nil, precision = nil, scale = nil)
+        if type == :primary_key
+          column_type_sql = type_to_sql_without_primary_key(:unsigned, limit, precision, scale)
+          column_type_sql << ' DEFAULT NULL auto_increment PRIMARY KEY'
+        else
+          type_to_sql_without_primary_key(type, limit, precision, scale)
+        end
+      end
+      alias_method_chain :type_to_sql, :primary_key
     end
   end
 end
